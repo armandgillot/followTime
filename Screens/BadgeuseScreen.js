@@ -1,8 +1,6 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState, useRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Button, Header, Card } from "react-native-elements";
+import { Button, Header } from "react-native-elements";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -105,8 +103,6 @@ export default function BadgeuseScreen() {
   const finButton = async () => {
     inWork.active = false;
     console.log("work dans fin", work);
-    var date = work[work.length - 1].date;
-    var startTime = work[work.length - 1].startTime;
 
     work[work.length - 1].endTime = Date.now();
     work[work.length - 1].duration =
@@ -196,14 +192,6 @@ export default function BadgeuseScreen() {
         {timeSince != "Vous pouvez pointer..." ? `Vous avez pointé` : ""}{" "}
         {timeSince}
       </Text>
-
-      <Card>
-        <Card.Title>TOTAL DU MOIS</Card.Title>
-        <Card.Divider />
-        <View>
-          <Text>Total du mois : </Text>
-        </View>
-      </Card>
     </View>
   );
 }

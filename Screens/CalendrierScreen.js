@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
@@ -9,9 +8,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { Header, ListItem, Overlay, Button } from "react-native-elements";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Header, ListItem, Divider } from "react-native-elements";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import moment, { now } from "moment";
@@ -19,12 +16,7 @@ import "moment/locale/fr";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  Calendar,
-  CalendarList,
-  Agenda,
-  LocaleConfig,
-} from "react-native-calendars";
+import { Calendar, LocaleConfig } from "react-native-calendars";
 
 LocaleConfig.locales["fr"] = {
   monthNames: [
@@ -96,6 +88,7 @@ export default function CalendrierScreen() {
   const [index, setIndex] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const [totalDuration, setTotalDuration] = useState(0);
 
   const [mode, setMode] = useState("time");
   const [show, setShow] = useState(true);
@@ -130,6 +123,32 @@ export default function CalendrierScreen() {
       moment(work[index].endTime) - moment(work[index].startTime);
     saveWork();
   };
+
+  const calculDuMois = () => {
+    var total = 0;
+    setTotalDuration(0);
+    for (i = 0; i < 31; i++) {
+      AsyncStorage.getItem(
+        `workData${i < 9 ? "0" : ""}${String(i + 1)}/${String(
+          moment(selectedDate).format("MM/YYYY")
+        )}`,
+        function (error, data) {
+          if (data) {
+            var dataInit = JSON.parse(data);
+            for (i = 0; i < dataInit.length; i++) {
+              total = total + dataInit[i].duration;
+              setTotalDuration(total);
+            }
+          }
+        }
+      );
+    }
+  };
+
+  // const validerState = (total) => {
+  //   var valeur = total + 0;
+  //   setTotalDuration(valeur);
+  // };
 
   const onChangeFin = (event, selectedDateTime) => {
     const currentDate = selectedDateTime;
@@ -204,6 +223,7 @@ export default function CalendrierScreen() {
               marginTop: 30,
               fontSize: 30,
               color: "#F47C5D",
+              marginBottom: 20,
             }}
           >
             Rien à afficher
@@ -235,12 +255,57 @@ export default function CalendrierScreen() {
         onDayPress={(day) => {
           setSelectedDate(day.dateString);
           showListData(moment(day.dateString).format("DD/MM/YYYY"));
-
-          console.log(moment(day.dateString).format("DD/MM/YYYY"));
+          calculDuMois();
+        }}
+        onMonthChange={(month) => {
+          var total = 0;
+          setTotalDuration(0);
+          for (i = 0; i < 31; i++) {
+            AsyncStorage.getItem(
+              `workData${i < 9 ? "0" : ""}${String(i + 1)}/${
+                month.month < 9 ? "0" : ""
+              }${month.month}/${String(moment(selectedDate).format("YYYY"))}`,
+              function (error, data) {
+                if (data) {
+                  var dataInit = JSON.parse(data);
+                  for (i = 0; i < dataInit.length; i++) {
+                    total = total + dataInit[i].duration;
+                    setTotalDuration(total);
+                  }
+                }
+              }
+            );
+          }
         }}
       />
+      <Divider orientation="horizontal" />
       <ScrollView style={{ paddingTop: 5 }}>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 15,
+            color: "grey",
+            marginTop: 10,
+          }}
+        >
+          Touchez 2 fois une date pour calculer le total
+        </Text>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 20,
+            color: "#31A390",
+            marginTop: 10,
+            marginBottom: 20,
+          }}
+        >
+          Total de ce mois :{" "}
+          <Text style={{ color: "grey", fontWeight: "bold" }}>
+            {moment.utc(totalDuration).format("HH:mm")}
+          </Text>
+        </Text>
         {daySelected}
+
         <Text style={{ textAlign: "center" }}> </Text>
       </ScrollView>
       <Modal

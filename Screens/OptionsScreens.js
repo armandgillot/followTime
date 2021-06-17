@@ -1,8 +1,7 @@
-import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Button, Header } from "react-native-elements";
+import { Button, Header, Card } from "react-native-elements";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -18,14 +17,38 @@ export default function OptionsScreen() {
         containerStyle={{ width: "100%", backgroundColor: "#31A390" }}
         placement="center"
       />
-      <Text>- Pour supprimer toutes les données de l'application :</Text>
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 20,
+          color: "black",
+          marginTop: 50,
+          marginBottom: 20,
+        }}
+      >
+        Pour réinitialiser toutes les données de l'appli :
+      </Text>
       <Button
+        style={styles.button}
         onPress={() => {
           AsyncStorage.clear();
         }}
-        title="Supprimer le local storage"
+        title="Supprimer toutes les données"
+        buttonStyle={{ backgroundColor: "red" }}
       />
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 20,
+          color: "black",
+          marginTop: 20,
+          marginBottom: 20,
+        }}
+      >
+        Pour développeurs uniquement :
+      </Text>
       <Button
+        style={styles.button}
         onPress={() => {
           AsyncStorage.getAllKeys((err, keys) => {
             AsyncStorage.multiGet(keys, (error, stores) => {
@@ -38,6 +61,28 @@ export default function OptionsScreen() {
         }}
         title="Afficher le storage"
       />
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 20,
+          color: "#31A390",
+          marginTop: 50,
+          marginBottom: 20,
+        }}
+      >
+        www.armandgillot.fr
+      </Text>
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 20,
+          color: "#31A390",
+
+          marginBottom: 20,
+        }}
+      >
+        contact@armandgillot.fr
+      </Text>
     </View>
   );
 }
@@ -48,5 +93,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  button: {
+    width: 200,
+    marginLeft: "auto",
+    marginRight: "auto",
   },
 });
