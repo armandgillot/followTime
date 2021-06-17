@@ -145,11 +145,6 @@ export default function CalendrierScreen() {
     }
   };
 
-  // const validerState = (total) => {
-  //   var valeur = total + 0;
-  //   setTotalDuration(valeur);
-  // };
-
   const onChangeFin = (event, selectedDateTime) => {
     const currentDate = selectedDateTime;
     setShow(Platform.OS === "ios");
