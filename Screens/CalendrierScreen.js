@@ -410,7 +410,7 @@ export default function CalendrierScreen() {
 
             <DateTimePicker
               style={{
-                width: 100,
+                width: 250,
                 // marginBottom: 15,
                 // marginLeft: 25,
                 flex: "center",
@@ -426,7 +426,7 @@ export default function CalendrierScreen() {
 
             <DateTimePicker
               style={{
-                width: 100,
+                width: 250,
                 // marginBottom: 15,
                 // marginLeft: 25,
               }}
