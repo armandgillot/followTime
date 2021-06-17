@@ -151,11 +151,6 @@ export default function CalendrierScreen() {
     var total = 0;
     setTotalDuration(0);
     for (i = 0; i < 31; i++) {
-      console.log(
-        `workData${i < 9 ? "0" : ""}${String(i + 1)}/${
-          month < 10 ? "0" : ""
-        }${month}/${String(moment().format("YYYY"))}`
-      );
       AsyncStorage.getItem(
         `workData${i < 9 ? "0" : ""}${String(i + 1)}/${
           month < 10 ? "0" : ""
