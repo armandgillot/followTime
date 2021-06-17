@@ -8,7 +8,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { Header, ListItem, Divider } from "react-native-elements";
+import { Header, ListItem, Divider, Button } from "react-native-elements";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import moment, { now } from "moment";
@@ -84,9 +84,11 @@ function useInterval(callback, delay) {
 export default function CalendrierScreen() {
   const [daySelected, setDaySelected] = useState();
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState();
   const [work, setWork] = useState(["fake"]);
   const [index, setIndex] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const [totalVisible, setTotalVisible] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [totalDuration, setTotalDuration] = useState(0);
 
@@ -135,6 +137,32 @@ export default function CalendrierScreen() {
         function (error, data) {
           if (data) {
             var dataInit = JSON.parse(data);
+            for (y = 0; y < dataInit.length; y++) {
+              total = total + dataInit[y].duration;
+              setTotalDuration(total);
+            }
+          }
+        }
+      );
+    }
+  };
+
+  const changerDeMois = (month) => {
+    var total = 0;
+    setTotalDuration(0);
+    for (i = 0; i < 31; i++) {
+      console.log(
+        `workData${i < 9 ? "0" : ""}${String(i + 1)}/${
+          month < 10 ? "0" : ""
+        }${month}/${String(moment().format("YYYY"))}`
+      );
+      AsyncStorage.getItem(
+        `workData${i < 9 ? "0" : ""}${String(i + 1)}/${
+          month < 10 ? "0" : ""
+        }${month}/${String(moment().format("YYYY"))}`,
+        function (error, data) {
+          if (data) {
+            var dataInit = JSON.parse(data);
             for (i = 0; i < dataInit.length; i++) {
               total = total + dataInit[i].duration;
               setTotalDuration(total);
@@ -144,11 +172,6 @@ export default function CalendrierScreen() {
       );
     }
   };
-
-  // const validerState = (total) => {
-  //   var valeur = total + 0;
-  //   setTotalDuration(valeur);
-  // };
 
   const onChangeFin = (event, selectedDateTime) => {
     const currentDate = selectedDateTime;
@@ -258,56 +281,92 @@ export default function CalendrierScreen() {
           calculDuMois();
         }}
         onMonthChange={(month) => {
-          var total = 0;
-          setTotalDuration(0);
-          for (i = 0; i < 31; i++) {
-            AsyncStorage.getItem(
-              `workData${i < 9 ? "0" : ""}${String(i + 1)}/${
-                month.month < 9 ? "0" : ""
-              }${month.month}/${String(moment(selectedDate).format("YYYY"))}`,
-              function (error, data) {
-                if (data) {
-                  var dataInit = JSON.parse(data);
-                  for (i = 0; i < dataInit.length; i++) {
-                    total = total + dataInit[i].duration;
-                    setTotalDuration(total);
-                  }
-                }
-              }
-            );
-          }
+          console.log(month);
+          changerDeMois(month.month);
+          setSelectedDate("");
+          setDaySelected(
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 30,
+                fontSize: 30,
+                color: "#F47C5D",
+                marginBottom: 20,
+              }}
+            >
+              Rien à afficher
+            </Text>
+          );
         }}
       />
       <Divider orientation="horizontal" />
-      <ScrollView style={{ paddingTop: 5 }}>
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: 15,
-            color: "grey",
-            marginTop: 10,
-          }}
-        >
-          Touchez 2 fois une date pour calculer le total
-        </Text>
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: 20,
-            color: "#31A390",
-            marginTop: 10,
-            marginBottom: 20,
-          }}
-        >
-          Total de ce mois :{" "}
-          <Text style={{ color: "grey", fontWeight: "bold" }}>
-            {moment.utc(totalDuration).format("HH:mm")}
-          </Text>
-        </Text>
-        {daySelected}
 
+      <ScrollView style={{ paddingTop: 5 }}>
+        <Button
+          style={
+            (styles.button,
+            {
+              width: 300,
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: 10,
+              marginBottom: 10,
+            })
+          }
+          buttonStyle={{ backgroundColor: "#31A390" }}
+          onPress={() => {
+            setTotalVisible(!totalVisible);
+          }}
+          title="Calcul du total du mois"
+        />
+        {daySelected}
         <Text style={{ textAlign: "center" }}> </Text>
       </ScrollView>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={totalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: 20,
+                color: "black",
+                marginBottom: 10,
+              }}
+            >
+              Total du mois :
+            </Text>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: 20,
+                color: "black",
+                fontWeight: "bold",
+                color: "#F47C5D",
+                marginBottom: 20,
+              }}
+            >
+              {moment.utc(totalDuration).format("HH:mm")}
+            </Text>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => {
+                setRefresh(!refresh);
+                setTotalVisible(!totalVisible);
+                showListData(String(moment(selectedDate).format("DD/MM/YYYY")));
+              }}
+            >
+              <Text style={styles.textStyle}>Fermer</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       <Modal
         animationType="slide"
         transparent={true}
@@ -352,23 +411,20 @@ export default function CalendrierScreen() {
             >
               <Text style={styles.textStyle}>Supprimer</Text>
             </Pressable>
-            <Text></Text>
-            <Text></Text>
-            <Text></Text>
             {/* <Text>Heure de début :</Text> */}
 
             <DateTimePicker
               style={{
                 width: 100,
-                marginBottom: 15,
-                marginLeft: 25,
+                // marginBottom: 15,
+                // marginLeft: 25,
                 flex: "center",
               }}
               testID="dateTimePicker"
               value={work[index].startTime || ""}
               mode={mode}
               is24Hour={true}
-              display="default"
+              display="spinner"
               onChange={onChangeDebut}
             />
             {/* <Text>Heure de fin :</Text> */}
@@ -376,14 +432,14 @@ export default function CalendrierScreen() {
             <DateTimePicker
               style={{
                 width: 100,
-                marginBottom: 15,
-                marginLeft: 25,
+                // marginBottom: 15,
+                // marginLeft: 25,
               }}
               testID="dateTimePicker"
               value={work[index].endTime || ""}
               mode={mode}
               is24Hour={true}
-              display="default"
+              display="spinner"
               onChange={onChangeFin}
             />
             <Text></Text>
@@ -394,6 +450,7 @@ export default function CalendrierScreen() {
                 setRefresh(!refresh);
                 setModalVisible(!modalVisible);
                 showListData(String(moment(selectedDate).format("DD/MM/YYYY")));
+                calculDuMois();
               }}
             >
               <Text style={styles.textStyle}>Fermer</Text>
