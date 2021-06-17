@@ -1,13 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Button, Header, Card } from "react-native-elements";
+import { Button, Header, Overlay } from "react-native-elements";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OptionsScreen() {
+  const [visible, setVisible] = useState(false);
+
+  const toggleOverlay = () => {
+    setVisible(!visible);
+  };
+
   return (
     <View>
+      <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+        <Text
+          style={{
+            textAlign: "center",
+            color: "red",
+            fontSize: 25,
+            marginBottom: 20,
+            fontWeight: "bold",
+          }}
+        >
+          DANGER : vous allez supprimer toutes les données de l'application
+        </Text>
+        <Button
+          style={styles.button}
+          buttonStyle={{ backgroundColor: "red", marginBottom: 20 }}
+          onPress={() => {
+            AsyncStorage.clear();
+            toggleOverlay();
+          }}
+          title="Supprimer"
+        />
+        <Button style={styles.button} onPress={toggleOverlay} title="Annuler" />
+      </Overlay>
       <Header
         barStyle="default"
         centerComponent={{
@@ -30,9 +59,7 @@ export default function OptionsScreen() {
       </Text>
       <Button
         style={styles.button}
-        onPress={() => {
-          AsyncStorage.clear();
-        }}
+        onPress={toggleOverlay}
         title="Supprimer toutes les données"
         buttonStyle={{ backgroundColor: "red" }}
       />
